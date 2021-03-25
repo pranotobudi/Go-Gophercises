@@ -1,6 +1,9 @@
 <h1>{{.Title}}</h1>
-{{range $index, $element := .Story}}
+<!-- {{range $index, $element := .Story}}
 <h3>{{$element}}</h3>
+{{end}} -->
+{{range .Story}}
+<h3>{{.}}</h3>
 {{end}}
 <a href="{{(index .Options 0).Arc}}"><h4>{{(index .Options 0).Text}}</h4></a>
 <!-- <h4>{{(index .Options 0).Arc}}</h4> -->

@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"net/http"
 	"os"
 )
@@ -16,13 +16,24 @@ type Options struct {
 type StoryArc struct {
 	Title   string
 	Story   []string
-	Options [2]Options
+	Options []Options
 }
+
+// type StoryArc struct {
+// 	Title   string   `json:"title"`
+// 	Story   []string `json:"story"`
+// 	Options []struct {
+// 		Text string `json:"text"`
+// 		Arc  string `json:"arc"`
+// 	} `json:"options"`
+// }
 type jsonContent map[string]StoryArc
 
 func main() {
 	// Open our jsonFile
-	jsonFile, err := os.Open("story.json")
+	filename := flag.String("file", "story.json", "file with CYOA story")
+	flag.Parse()
+	jsonFile, err := os.Open(*filename)
 	// if we os.Open returns an error then handle it
 	if err != nil {
 		fmt.Println(err)
@@ -30,10 +41,13 @@ func main() {
 	fmt.Println("Successfully Opened story.json")
 	// defer the closing of our jsonFile so that we can parse it later on
 	defer jsonFile.Close()
-	byteValue, _ := ioutil.ReadAll(jsonFile)
+	// byteValue, _ := ioutil.ReadAll(jsonFile)
 	// var result map[string]interface{}
 	var result jsonContent
-	json.Unmarshal([]byte(byteValue), &result)
+	d := json.NewDecoder(jsonFile)
+	d.Decode(&result)
+
+	// json.Unmarshal([]byte(byteValue), &result)
 	var page StoryArc
 	// fmt.Println(page.Title)
 
