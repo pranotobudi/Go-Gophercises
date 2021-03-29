@@ -19,6 +19,40 @@ type Link struct {
 // links, err := link.Parse(r)
 
 //Parse will take in an HTML document and will return a slice of links parsed from it
+func ParseURL(r io.Reader) ([]string, error) {
+	doc, err := html.Parse(r)
+	if err != nil {
+		panic(err)
+	}
+	nodes := LinkNodes(doc)
+	var links []Link
+	for _, node := range nodes {
+		links = append(links, BuildLink(node))
+		// fmt.Printf("%v \n", node)
+	}
+	// dfs(doc, "")
+	var URLs []string
+	for _, link := range links {
+		URLs = append(URLs, link.Href)
+	}
+	return URLs, nil
+}
+
+func NormalizeURL(url string, parentUrl string) string {
+	var result string
+	if strings.Contains(url, "http://") { //remove http://
+		result = "https://" + url[7:]
+	}
+	// fmt.Printf("inside normalize func, url: %v \n", url)
+	if !strings.Contains(url, ".") {
+		result = parentUrl + url //parentUrl in the form of https
+		// fmt.Printf("inside if, result: %v \n", result)
+	} else {
+		result = url
+	}
+	return result
+}
+
 func Parse(r io.Reader) ([]Link, error) {
 	doc, err := html.Parse(r)
 	if err != nil {
