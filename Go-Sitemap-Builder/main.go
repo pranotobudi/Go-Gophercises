@@ -21,7 +21,6 @@ func main() {
 	links := bsf(*urlFlag, *maxDepth)
 
 	turnToXML(links)
-
 }
 
 const xmlns = "http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -113,4 +112,5 @@ func filter(links []string, baseURL string) []string {
 		}
 	}
 	return pageURLs
+	strings.Contai
 }
