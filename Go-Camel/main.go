@@ -9,7 +9,7 @@ func main() {
 	var input string
 	fmt.Scanf("%s \n", &input)
 	counter := camelcase(input)
-	fmt.Println("Total words is: %v", counter)
+	fmt.Printf("%v", counter)
 }
 func camelcase(s string) int32 {
 	var result int32 = 0
