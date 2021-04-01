@@ -15,28 +15,8 @@ limitations under the License.
 */
 package main
 
-import (
-	"fmt"
-	"os"
-	"path/filepath"
-
-	"github.com/mitchellh/go-homedir"
-	"github.com/pranotobudi/Go-Gophercises/tree/main/Go-CLI-Task-Manager/task/cmd"
-	"github.com/pranotobudi/Go-Gophercises/tree/main/Go-CLI-Task-Manager/task/db"
-)
+import "github.com/pranotobudi/Go-Gophercises/tree/main/todoxx2/cmd"
 
 func main() {
-	home, _ := homedir.Dir()
-	dbPath := filepath.Join(home, "tasks.db")
-	must(db.InitDB(dbPath))
-
-	// fmt.Println("db stuff works")
 	cmd.Execute()
-}
-
-func must(err error) {
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
 }
