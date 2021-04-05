@@ -1,11 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 
 	_ "github.com/lib/pq"
 	"github.com/pranotobudi/Go-Gophercises/Go-Phone-Number/database"
+	"github.com/pranotobudi/Go-Gophercises/Go-Phone-Number/database/dbhandler"
 )
 
 const (
@@ -21,27 +21,25 @@ const (
 // 	number string
 // }
 
+//func main for dbtype.go
 func main() {
 	connStr := fmt.Sprintf("user=%s port=%d user=%s password=%s sslmode=disable", host, port, user, password)
-	db, err := sql.Open("postgres", connStr)
+	var dbType *dbhandler.DBType
+	dbType, err := dbhandler.Open("postgres", connStr)
 	must(err)
 
 	connStr = fmt.Sprintf("user=%s port=%d user=%s password=%s sslmode=disable", host, port, user, password)
-	db, err = sql.Open("postgres", connStr)
+	dbType, err = dbhandler.Open("postgres", connStr)
 	must(err)
+	dbType.TerminateConnection(dbname)
 
-	database.TerminateConnection(db, dbname)
-
-	err = database.ResetDB(db, dbname)
+	err = dbType.ResetDB(dbname)
 	must(err)
-	db.Close()
 
 	connStr = fmt.Sprintf("%s dbname=%s", connStr, dbname)
-	db, err = sql.Open("postgres", connStr)
+	dbType, err = dbhandler.Open("postgres", connStr)
 	must(err)
-	defer db.Close()
-	db.Ping()
-	database.CreatePhoneNumberTable(db)
+	dbType.CreatePhoneNumberTable()
 	var id int
 	data := []string{
 		"1234567890",
@@ -54,37 +52,102 @@ func main() {
 		"(123)456-7892",
 	}
 	for _, num := range data {
-		id, err = database.InsertPhoneNumber(db, num)
+		id, err = dbType.InsertPhoneNumber(num)
 		must(err)
 		fmt.Printf("id = %d \n", id)
 	}
-	number, err := database.GetPhone(db, id)
+	number, err := dbType.GetPhone(id)
 	must(err)
 	fmt.Printf("number: %s \n", number)
-	phones, err := database.GetAllPhone(db)
+	phones, err := dbType.GetAllPhone()
 	must(err)
 	for _, phone := range phones {
 		fmt.Printf("Working on.... id: %d, number: %s\n", phone.ID, phone.Number)
 		normalNumber := database.Normalize(phone.Number)
 		if normalNumber != phone.Number {
 			fmt.Println("Updating....")
-			existingID, err := database.FindPhoneID(db, normalNumber)
+			existingID, err := dbType.FindPhoneID(normalNumber)
 			must(err)
 			if existingID == -1 {
 				// Update this row
 				fmt.Println("Update number....")
-				err = database.UpdatePhone(db, phone.ID, normalNumber)
+				err = dbType.UpdatePhone(phone.ID, normalNumber)
 				must(err)
 			} else {
 				// Delete this row
 				fmt.Println("Delete....")
-				must(database.DeletePhone(db, phone.ID))
+				must(dbType.DeletePhone(phone.ID))
 			}
 		} else {
 			fmt.Println("No need changes....")
 		}
 	}
 }
+
+//func main for database.go
+// func main() {
+// 	connStr := fmt.Sprintf("user=%s port=%d user=%s password=%s sslmode=disable", host, port, user, password)
+// 	db, err := sql.Open("postgres", connStr)
+// 	must(err)
+
+// 	connStr = fmt.Sprintf("user=%s port=%d user=%s password=%s sslmode=disable", host, port, user, password)
+// 	db, err = sql.Open("postgres", connStr)
+// 	must(err)
+// 	database.TerminateConnection(db, dbname)
+
+// 	err = database.ResetDB(db, dbname)
+// 	must(err)
+// 	db.Close()
+
+// 	connStr = fmt.Sprintf("%s dbname=%s", connStr, dbname)
+// 	db, err = sql.Open("postgres", connStr)
+// 	must(err)
+// 	defer db.Close()
+// 	db.Ping()
+// 	database.CreatePhoneNumberTable(db)
+// 	var id int
+// 	data := []string{
+// 		"1234567890",
+// 		"123 456 7891",
+// 		"(123) 456 7892",
+// 		"(123) 456-7893",
+// 		"123-456-7894",
+// 		"123-456-7890",
+// 		"1234567892",
+// 		"(123)456-7892",
+// 	}
+// 	for _, num := range data {
+// 		id, err = database.InsertPhoneNumber(db, num)
+// 		must(err)
+// 		fmt.Printf("id = %d \n", id)
+// 	}
+// 	number, err := database.GetPhone(db, id)
+// 	must(err)
+// 	fmt.Printf("number: %s \n", number)
+// 	phones, err := database.GetAllPhone(db)
+// 	must(err)
+// 	for _, phone := range phones {
+// 		fmt.Printf("Working on.... id: %d, number: %s\n", phone.ID, phone.Number)
+// 		normalNumber := database.Normalize(phone.Number)
+// 		if normalNumber != phone.Number {
+// 			fmt.Println("Updating....")
+// 			existingID, err := database.FindPhoneID(db, normalNumber)
+// 			must(err)
+// 			if existingID == -1 {
+// 				// Update this row
+// 				fmt.Println("Update number....")
+// 				err = database.UpdatePhone(db, phone.ID, normalNumber)
+// 				must(err)
+// 			} else {
+// 				// Delete this row
+// 				fmt.Println("Delete....")
+// 				must(database.DeletePhone(db, phone.ID))
+// 			}
+// 		} else {
+// 			fmt.Println("No need changes....")
+// 		}
+// 	}
+// }
 
 // func main() {
 // 	connStr := fmt.Sprintf("user=%s port=%d user=%s password=%s sslmode=disable", host, port, user, password)
