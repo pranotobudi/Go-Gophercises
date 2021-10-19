@@ -30,6 +30,7 @@ type DBType struct {
 	db *sql.DB
 }
 
+//TerminateConnection disconnect everything except your session from the database you are connected to:
 func (dbPointer *DBType) TerminateConnection(dbname string) {
 	statement := fmt.Sprintf(`
 	SELECT pg_terminate_backend(pg_stat_activity.pid)
